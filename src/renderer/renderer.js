@@ -9,6 +9,8 @@ class NeptuneEditor {
     this.addButton = document.getElementById('add-task-btn');
     this.toggleCompletedBtn = document.getElementById('toggle-completed');
     this.showCompleted = false;
+    this.activeCalendar = null;
+    this.activeCalendarTaskId = null;
     
     this.init();
   }
@@ -270,7 +272,7 @@ class NeptuneEditor {
         <button class="date-picker-btn" title="Set due date">
           <i class="fas fa-calendar"></i>
         </button>
-        <input type="date" class="date-picker" style="display: none;">
+        <div class="calendar-popover" style="display:none;"></div>
         <button class="task-skip">×</button>
       </div>
     `;
@@ -280,7 +282,7 @@ class NeptuneEditor {
     const input = taskElement.querySelector('.task-input');
     const skipButton = taskElement.querySelector('.task-skip');
     const datePickerBtn = taskElement.querySelector('.date-picker-btn');
-    const datePicker = taskElement.querySelector('.date-picker');
+    const calendarPopover = taskElement.querySelector('.calendar-popover');
 
     checkbox.addEventListener('change', () => {
       if (checkbox.checked) {
@@ -304,21 +306,9 @@ class NeptuneEditor {
       setTimeout(() => this.skipTask(task.id), 300);
     });
 
-    datePickerBtn.addEventListener('click', () => {
-      datePicker.style.display = 'block';
-      datePicker.focus();
-      datePicker.click();
-    });
-
-    datePicker.addEventListener('change', () => {
-      this.setTaskDueDate(task.id, datePicker.value);
-      datePicker.style.display = 'none';
-    });
-
-    datePicker.addEventListener('blur', () => {
-      setTimeout(() => {
-        datePicker.style.display = 'none';
-      }, 200);
+    datePickerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleCalendar(calendarPopover, task.id, task.dueDate);
     });
 
     // Drag and drop
@@ -346,6 +336,155 @@ class NeptuneEditor {
     });
 
     return taskElement;
+  }
+
+  toggleCalendar(containerEl, taskId, selectedIsoDate) {
+    // Close any existing calendar first
+    if (this.activeCalendar && this.activeCalendar !== containerEl) {
+      this.activeCalendar.style.display = 'none';
+      this.activeCalendar.innerHTML = '';
+    }
+
+    const isOpen = containerEl.style.display !== 'none';
+    if (isOpen) {
+      containerEl.style.display = 'none';
+      containerEl.innerHTML = '';
+      this.activeCalendar = null;
+      this.activeCalendarTaskId = null;
+      return;
+    }
+
+    this.activeCalendar = containerEl;
+    this.activeCalendarTaskId = taskId;
+
+    const initDate = selectedIsoDate ? new Date(selectedIsoDate) : new Date();
+    this.renderCalendar(containerEl, taskId, initDate, selectedIsoDate);
+    containerEl.style.display = 'block';
+
+    // One-time outside click to close
+    const onDocClick = (evt) => {
+      if (!containerEl.contains(evt.target)) {
+        containerEl.style.display = 'none';
+        containerEl.innerHTML = '';
+        this.activeCalendar = null;
+        this.activeCalendarTaskId = null;
+        document.removeEventListener('click', onDocClick, true);
+      }
+    };
+    document.addEventListener('click', onDocClick, true);
+  }
+
+  renderCalendar(containerEl, taskId, viewDate, selectedIsoDate) {
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth(); // 0-11
+
+    const selectedKey = selectedIsoDate ? this.toDateKey(new Date(selectedIsoDate)) : null;
+
+    const monthLabel = viewDate.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+    const firstOfMonth = new Date(year, month, 1);
+    const startDay = (firstOfMonth.getDay() + 6) % 7; // Monday=0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const todayKey = this.toDateKey(new Date());
+
+    const weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      .map(d => `<div class="cal-dow">${d}</div>`)
+      .join('');
+
+    let cells = '';
+    for (let i = 0; i < startDay; i++) {
+      cells += `<button class="cal-day cal-day--empty" tabindex="-1" disabled></button>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(year, month, day);
+      const key = this.toDateKey(dateObj);
+      const isToday = key === todayKey;
+      const isSelected = selectedKey && key === selectedKey;
+
+      const classes = [
+        'cal-day',
+        isToday ? 'cal-day--today' : '',
+        isSelected ? 'cal-day--selected' : ''
+      ].filter(Boolean).join(' ');
+
+      const iso = this.toIsoDate(dateObj);
+      cells += `<button class="${classes}" data-iso="${iso}">${day}</button>`;
+    }
+
+    containerEl.innerHTML = `
+      <div class="cal">
+        <div class="cal-header">
+          <button class="cal-nav" data-nav="prev" title="Previous month">‹</button>
+          <div class="cal-title">${monthLabel}</div>
+          <button class="cal-nav" data-nav="next" title="Next month">›</button>
+        </div>
+        <div class="cal-weekdays">${weekday}</div>
+        <div class="cal-grid">${cells}</div>
+        <div class="cal-footer">
+          <button class="cal-action" data-action="clear">Clear</button>
+          <button class="cal-action" data-action="today">Today</button>
+        </div>
+      </div>
+    `;
+
+    // Navigation
+    containerEl.querySelectorAll('.cal-nav').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nav = btn.dataset.nav;
+        const next = new Date(year, month + (nav === 'next' ? 1 : -1), 1);
+        this.renderCalendar(containerEl, taskId, next, selectedIsoDate);
+      });
+    });
+
+    // Day selection
+    containerEl.querySelectorAll('.cal-day[data-iso]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const iso = btn.dataset.iso;
+        this.setTaskDueDate(taskId, iso);
+        containerEl.style.display = 'none';
+        containerEl.innerHTML = '';
+        this.activeCalendar = null;
+        this.activeCalendarTaskId = null;
+      });
+    });
+
+    // Footer actions
+    containerEl.querySelectorAll('.cal-action').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = btn.dataset.action;
+        if (action === 'clear') {
+          this.setTaskDueDate(taskId, null);
+          containerEl.style.display = 'none';
+          containerEl.innerHTML = '';
+          this.activeCalendar = null;
+          this.activeCalendarTaskId = null;
+          return;
+        }
+        if (action === 'today') {
+          const iso = this.toIsoDate(new Date());
+          this.setTaskDueDate(taskId, iso);
+          containerEl.style.display = 'none';
+          containerEl.innerHTML = '';
+          this.activeCalendar = null;
+          this.activeCalendarTaskId = null;
+        }
+      });
+    });
+  }
+
+  toIsoDate(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  toDateKey(dateObj) {
+    return `${dateObj.getFullYear()}-${dateObj.getMonth()}-${dateObj.getDate()}`;
   }
 }
 
