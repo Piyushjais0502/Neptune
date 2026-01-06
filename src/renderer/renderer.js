@@ -254,7 +254,7 @@ class NeptuneEditor {
   createTaskElement(task, index) {
     const taskElement = document.createElement('div');
     const overdue = this.isTaskOverdue(task);
-    
+
     taskElement.className = `task-item ${overdue ? 'overdue' : ''}`;
     taskElement.draggable = true;
     taskElement.dataset.taskId = task.id;
@@ -273,16 +273,18 @@ class NeptuneEditor {
           <i class="fas fa-calendar"></i>
         </button>
         <div class="calendar-popover" style="display:none;"></div>
-        <button class="task-skip">×</button>
+        <button class="task-delete-btn" title="Delete task">
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
     `;
 
     // Event listeners
     const checkbox = taskElement.querySelector('.task-checkbox');
     const input = taskElement.querySelector('.task-input');
-    const skipButton = taskElement.querySelector('.task-skip');
     const datePickerBtn = taskElement.querySelector('.date-picker-btn');
     const calendarPopover = taskElement.querySelector('.calendar-popover');
+    const deleteBtn = taskElement.querySelector('.task-delete-btn');
 
     checkbox.addEventListener('change', () => {
       if (checkbox.checked) {
@@ -301,14 +303,14 @@ class NeptuneEditor {
       }
     });
 
-    skipButton.addEventListener('click', () => {
-      taskElement.classList.add('skipping');
-      setTimeout(() => this.skipTask(task.id), 300);
-    });
-
     datePickerBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.toggleCalendar(calendarPopover, task.id, task.dueDate);
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      taskElement.classList.add('skipping');
+      setTimeout(() => this.skipTask(task.id), 300);
     });
 
     // Drag and drop
