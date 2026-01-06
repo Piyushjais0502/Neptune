@@ -6,18 +6,18 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #fafafa;
-  color: #333;
+  /* background: #323232;
+  color: #333; */
   overflow-x: hidden;
 }
 
 .notebook-container {
-  max-width: 700px;
+  /* max-width: 700px; */
   margin: 0 auto;
   padding: 40px 20px;
-  background: white;
+  background: #393939;
   min-height: 100vh;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  box-shadow: 0 0 20px #0000001a;
 }
 
 .notebook-header {
@@ -25,16 +25,16 @@ body {
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #000000;
 }
 
 .add-button {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #007acc;
-  background: white;
-  color: #007acc;
+  /* border: 2px solid #007acc; */
+  background: rgb(0, 0, 0);
+  color: #ffffff;
   font-size: 24px;
   font-weight: bold;
   cursor: pointer;
@@ -43,14 +43,14 @@ body {
 }
 
 .add-button:hover {
-  background: #007acc;
+  background: #555657;
   color: white;
 }
 
 .notebook-title {
   font-size: 28px;
   font-weight: 300;
-  color: #333;
+  color: #b3aeae;
 }
 
 .task-list {
@@ -63,16 +63,16 @@ body {
   display: flex;
   align-items: center;
   padding: 15px;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  background: #5f5f5f;
+  border: 1px solid #000000;
+  border-radius: 30px;
   cursor: grab;
   transition: all 0.2s ease;
   position: relative;
 }
 
 .task-item:hover {
-  background: #f1f3f4;
+  background: #828282;
   border-color: #007acc;
 }
 
@@ -84,7 +84,8 @@ body {
 .task-checkbox {
   width: 20px;
   height: 20px;
-  margin-right: 12px;
+  border-radius: 20px;
+  margin-right: 20px;
   cursor: pointer;
 }
 
@@ -97,12 +98,12 @@ body {
 
 .task-input {
   flex: 1;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.4;
   border: none;
   background: transparent;
   outline: none;
-  color: #333;
+  /* color: #333; */
 }
 
 .task-skip {
@@ -155,8 +156,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
 }
-.c
-ompleted-section {
+.completed-section {
   margin-top: 40px;
   padding-top: 30px;
   border-top: 2px solid #f0f0f0;
