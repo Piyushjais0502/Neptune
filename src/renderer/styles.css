@@ -12,7 +12,8 @@
   --text: #f0f0f0;
   --muted: rgba(240, 240, 240, 0.65);
   --pill: rgba(0, 0, 0, 0.55);
-  --accent: #a78bfa; /* soft violet */
+  --accent: #a78bfa;
+  /* soft violet */
   --danger: #ff4d6d;
 }
 
@@ -22,8 +23,8 @@ body {
   color: #333; */
   overflow-x: hidden;
   background: radial-gradient(1000px 600px at 20% 10%, rgba(167, 139, 250, 0.18), transparent 55%),
-              radial-gradient(900px 540px at 90% 25%, rgba(34, 211, 238, 0.12), transparent 55%),
-              var(--bg);
+    radial-gradient(900px 540px at 90% 25%, rgba(34, 211, 238, 0.12), transparent 55%),
+    var(--bg);
   color: var(--text);
 }
 
@@ -77,7 +78,7 @@ body {
 
 .task-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 14px 16px;
   background: linear-gradient(180deg, rgba(95, 95, 95, 0.78) 0%, rgba(75, 75, 75, 0.72) 100%);
   border-radius: 18px;
@@ -115,17 +116,19 @@ body {
   height: 20px;
   border-radius: 20px;
   margin-right: 20px;
+  margin-top: 2px;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background: rgba(0,0,0,0.55);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
 }
 
 .task-checkbox:checked {
   background: var(--accent);
-  border-color: rgba(0,0,0,0.75);
+  border-color: rgba(0, 0, 0, 0.75);
 }
 
 .task-text {
@@ -151,6 +154,198 @@ body {
   color: rgba(240, 240, 240, 0.45);
 }
 
+/* Task content wrapper */
+.task-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Description styles */
+.task-description-container {
+  margin-top: 12px;
+  animation: slideDown 0.2s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.description-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 4px;
+}
+
+.toolbar-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(240, 240, 240, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-size: 12px;
+  outline: none;
+  user-select: none;
+}
+
+.toolbar-btn:hover {
+  background: rgba(167, 139, 250, 0.2);
+  color: rgba(240, 240, 240, 0.9);
+}
+
+.toolbar-btn.active {
+  background: rgba(167, 139, 250, 0.35);
+  color: #fff;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 6px;
+}
+
+.task-description-input {
+  width: 100%;
+  min-height: 80px;
+  max-height: 200px;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  font-family: inherit;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+.task-description-input.empty::before {
+  content: attr(data-placeholder);
+  color: rgba(240, 240, 240, 0.45);
+  pointer-events: none;
+  position: absolute;
+}
+
+.task-description-input:focus {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Rich text formatting styles */
+.task-description-input b,
+.task-description-input strong {
+  font-weight: bold;
+}
+
+.task-description-input i,
+.task-description-input em {
+  font-style: italic;
+}
+
+.task-description-input u {
+  text-decoration: underline;
+}
+
+.task-description-input strike,
+.task-description-input s {
+  text-decoration: line-through;
+}
+
+.task-description-input ul,
+.task-description-input ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.task-description-input ul li {
+  list-style-type: disc;
+  margin: 4px 0;
+}
+
+.task-description-input ol li {
+  list-style-type: decimal;
+  margin: 4px 0;
+}
+
+.task-description-input p {
+  margin: 8px 0;
+}
+
+.task-description-input p:first-child {
+  margin-top: 0;
+}
+
+.task-description-input p:last-child {
+  margin-bottom: 0;
+}
+
+.description-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(240, 240, 240, 0.9);
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: transform 0.15s ease, background 0.15s ease, opacity 0.2s ease;
+}
+
+.task-item:hover .description-btn {
+  opacity: 1;
+}
+
+.description-btn:hover {
+  background: rgba(167, 139, 250, 0.22);
+  transform: translateY(-1px);
+}
+
+.description-btn.has-description {
+  background: rgba(167, 139, 250, 0.35);
+  border-color: rgba(167, 139, 250, 0.5);
+  opacity: 1;
+}
+
+.description-btn.has-description:hover {
+  background: rgba(167, 139, 250, 0.45);
+}
+
+.description-btn i {
+  font-size: 14px;
+}
+
+/* Task item with open description */
+.task-item.description-open {
+  align-items: flex-start;
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+
 .task-skip {
   width: 24px;
   height: 24px;
@@ -163,7 +358,7 @@ body {
   font-weight: bold;
   margin-left: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
 .task-skip:hover {
@@ -202,6 +397,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
 }
+
 .completed-section {
   margin-top: 40px;
   padding-top: 30px;
@@ -253,23 +449,68 @@ body {
 
 .completed-task {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 12px 15px;
   background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255,255,255,0.10);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 14px;
   opacity: 0.7;
-  color: rgba(240,240,240,0.65);
+  color: rgba(240, 240, 240, 0.65);
+}
+
+.completed-task .task-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .completed-task .task-text {
   text-decoration: line-through;
-  color: rgba(240,240,240,0.65);
+  color: rgba(240, 240, 240, 0.65);
   font-size: 15px;
+}
+
+.completed-task .task-description-display {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(240, 240, 240, 0.45);
+  line-height: 1.4;
+  text-decoration: line-through;
+}
+
+.completed-task .task-description-display b,
+.completed-task .task-description-display strong {
+  font-weight: bold;
+}
+
+.completed-task .task-description-display i,
+.completed-task .task-description-display em {
+  font-style: italic;
+}
+
+.completed-task .task-description-display u {
+  text-decoration: underline line-through;
+}
+
+.completed-task .task-description-display ul,
+.completed-task .task-description-display ol {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+
+.completed-task .task-description-display ul li {
+  list-style-type: disc;
+  margin: 2px 0;
+}
+
+.completed-task .task-description-display ol li {
+  list-style-type: decimal;
+  margin: 2px 0;
 }
 
 .completed-task .task-checkbox {
   margin-right: 12px;
+  margin-top: 2px;
 }
 
 .completed-task .task-checkbox:checked {
@@ -309,8 +550,15 @@ body {
 }
 
 @keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+  }
 }
 
 /* Task Controls */
@@ -319,6 +567,8 @@ body {
   align-items: center;
   gap: 10px;
   position: relative;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .due-date,
@@ -326,14 +576,14 @@ body {
   font-size: 12px;
   border-radius: 999px;
   padding: 6px 10px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.45);
-  color: rgba(240,240,240,0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(240, 240, 240, 0.78);
 }
 
 .due-date-placeholder {
   font-style: normal;
-  color: rgba(240,240,240,0.55);
+  color: rgba(240, 240, 240, 0.55);
 }
 
 .overdue .due-date {
@@ -345,7 +595,7 @@ body {
 
 .date-picker-btn {
   border: 1px solid #000;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   color: #fff;
   width: 34px;
   height: 34px;
@@ -355,7 +605,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.15s ease;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
 .date-picker-btn:hover {
@@ -377,7 +627,7 @@ body {
 .cal {
   width: 280px;
   background: linear-gradient(180deg, rgba(95, 95, 95, 0.88) 0%, rgba(60, 60, 60, 0.82) 100%);
-  border: 1px solid rgba(255,255,255,0.10);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 16px;
   padding: 12px;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
@@ -403,7 +653,7 @@ body {
   height: 34px;
   border-radius: 999px;
   border: 1px solid #000;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   color: #fff;
   cursor: pointer;
 }
@@ -435,8 +685,8 @@ body {
 .cal-day {
   height: 34px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.35);
   color: #f2f2f2;
   cursor: pointer;
   font-size: 13px;
@@ -459,7 +709,7 @@ body {
 .cal-day--selected {
   background: var(--accent);
   color: #141414;
-  border-color: rgba(0,0,0,0.75);
+  border-color: rgba(0, 0, 0, 0.75);
 }
 
 .cal-footer {
@@ -474,7 +724,7 @@ body {
   height: 34px;
   border-radius: 12px;
   border: 1px solid #000;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0, 0, 0, 0.65);
   color: #fff;
   cursor: pointer;
   font-size: 13px;
@@ -514,6 +764,7 @@ body {
     transform: translateX(0);
     opacity: 1;
   }
+
   100% {
     transform: translateX(100%);
     opacity: 0;
@@ -525,6 +776,7 @@ body {
     transform: translateX(0);
     opacity: 1;
   }
+
   100% {
     transform: translateX(-100%);
     opacity: 0;
@@ -537,6 +789,7 @@ body {
     transform: translateY(-20px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -576,6 +829,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   100% {
     opacity: 0.7;
     transform: translateY(0);
@@ -598,8 +852,8 @@ body {
 .delete-completed-btn {
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.55);
   color: rgba(240, 240, 240, 0.9);
   border-radius: 12px;
   cursor: pointer;
@@ -633,8 +887,8 @@ body {
 .task-delete-btn {
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.55);
   color: rgba(240, 240, 240, 0.9);
   border-radius: 12px;
   cursor: pointer;

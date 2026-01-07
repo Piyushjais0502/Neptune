@@ -90,6 +90,7 @@ class NeptuneEditor {
       text: text,
       created: new Date().toISOString(),
       dueDate: null,
+      description: '',
       isNew: true
     };
     
@@ -132,6 +133,14 @@ class NeptuneEditor {
     const task = this.data.tasks.find(t => t.id === taskId);
     if (task) {
       task.text = text;
+      this.saveData();
+    }
+  }
+
+  updateTaskDescription(taskId, description) {
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.description = description;
       this.saveData();
     }
   }
@@ -241,10 +250,14 @@ class NeptuneEditor {
     taskElement.className = 'completed-task';
     
     const completedDate = new Date(task.completed).toLocaleDateString();
+    const hasDescription = task.description && task.description.trim();
     
     taskElement.innerHTML = `
       <input type="checkbox" class="task-checkbox" checked disabled>
-      <span class="task-text">${task.text}</span>
+      <div class="task-content">
+        <span class="task-text">${task.text}</span>
+        ${hasDescription ? `<div class="task-description-display">${task.description}</div>` : ''}
+      </div>
       <span class="completed-date">${completedDate}</span>
       <button class="delete-completed-btn" title="Delete permanently">
         <i class="fas fa-trash"></i>
@@ -274,11 +287,47 @@ class NeptuneEditor {
       `<span class="due-date">${new Date(task.dueDate).toLocaleDateString()}</span>` : 
       '<span class="due-date-placeholder">No due date</span>';
 
+    const hasDescription = task.description && task.description.trim();
+    const descriptionIndicator = hasDescription ? 'has-description' : '';
+
     taskElement.innerHTML = `
       <input type="checkbox" class="task-checkbox">
-      <input type="text" class="task-input" value="${task.text}" placeholder="Enter task...">
+      <div class="task-content">
+        <input type="text" class="task-input" value="${task.text}" placeholder="Enter task...">
+        <div class="task-description-container" style="display: none;">
+          <div class="description-toolbar">
+            <button class="toolbar-btn" data-command="bold" title="Bold">
+              <i class="fas fa-bold"></i>
+            </button>
+            <button class="toolbar-btn" data-command="italic" title="Italic">
+              <i class="fas fa-italic"></i>
+            </button>
+            <button class="toolbar-btn" data-command="underline" title="Underline">
+              <i class="fas fa-underline"></i>
+            </button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
+              <i class="fas fa-list-ul"></i>
+            </button>
+            <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
+              <i class="fas fa-list-ol"></i>
+            </button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" data-command="strikeThrough" title="Strikethrough">
+              <i class="fas fa-strikethrough"></i>
+            </button>
+            <button class="toolbar-btn" data-command="removeFormat" title="Clear Formatting">
+              <i class="fas fa-remove-format"></i>
+            </button>
+          </div>
+          <div class="task-description-input" contenteditable="true" data-placeholder="Add a description...">${task.description || ''}</div>
+        </div>
+      </div>
       <div class="task-controls">
         ${dueDateDisplay}
+        <button class="description-btn ${descriptionIndicator}" title="Add description">
+          <i class="fas fa-align-left"></i>
+        </button>
         <button class="date-picker-btn" title="Set due date">
           <i class="fas fa-calendar"></i>
         </button>
@@ -292,6 +341,9 @@ class NeptuneEditor {
     // Event listeners
     const checkbox = taskElement.querySelector('.task-checkbox');
     const input = taskElement.querySelector('.task-input');
+    const descriptionBtn = taskElement.querySelector('.description-btn');
+    const descriptionContainer = taskElement.querySelector('.task-description-container');
+    const descriptionInput = taskElement.querySelector('.task-description-input');
     const datePickerBtn = taskElement.querySelector('.date-picker-btn');
     const calendarPopover = taskElement.querySelector('.calendar-popover');
     const deleteBtn = taskElement.querySelector('.task-delete-btn');
@@ -310,6 +362,116 @@ class NeptuneEditor {
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         input.blur();
+      }
+    });
+
+    // Description functionality
+    descriptionBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isVisible = descriptionContainer.style.display !== 'none';
+      
+      // Hide all other open descriptions
+      document.querySelectorAll('.task-description-container').forEach(container => {
+        if (container !== descriptionContainer) {
+          container.style.display = 'none';
+          container.closest('.task-item').classList.remove('description-open');
+        }
+      });
+      
+      if (isVisible) {
+        descriptionContainer.style.display = 'none';
+        taskElement.classList.remove('description-open');
+      } else {
+        descriptionContainer.style.display = 'block';
+        taskElement.classList.add('description-open');
+        setTimeout(() => {
+          descriptionInput.focus();
+          this.updatePlaceholder(descriptionInput);
+        }, 100);
+        
+        // Add click-outside handler for this specific description
+        this.setupDescriptionClickOutside(descriptionContainer, taskElement);
+      }
+    });
+
+    // Prevent description container from closing when clicking inside it
+    descriptionContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Toolbar functionality
+    const toolbarBtns = taskElement.querySelectorAll('.toolbar-btn');
+    toolbarBtns.forEach(btn => {
+      btn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const command = btn.dataset.command;
+        
+        // Execute the formatting command
+        document.execCommand(command, false, null);
+        
+        // Update button states
+        this.updateToolbarStates(taskElement);
+        
+        // Keep focus on the editor
+        setTimeout(() => descriptionInput.focus(), 10);
+      });
+    });
+
+    // Description input events
+    descriptionInput.addEventListener('blur', (e) => {
+      // Check if the blur is caused by clicking on a toolbar button
+      const relatedTarget = e.relatedTarget;
+      const isToolbarClick = relatedTarget && relatedTarget.closest('.description-toolbar');
+      
+      if (!isToolbarClick) {
+        this.updateTaskDescription(task.id, descriptionInput.innerHTML);
+        // Update the button indicator
+        if (descriptionInput.textContent.trim() || descriptionInput.innerHTML.trim()) {
+          descriptionBtn.classList.add('has-description');
+        } else {
+          descriptionBtn.classList.remove('has-description');
+        }
+      }
+    });
+
+    descriptionInput.addEventListener('input', () => {
+      this.updatePlaceholder(descriptionInput);
+      this.updateToolbarStates(taskElement);
+    });
+
+    descriptionInput.addEventListener('keyup', () => {
+      this.updateToolbarStates(taskElement);
+    });
+
+    descriptionInput.addEventListener('mouseup', () => {
+      this.updateToolbarStates(taskElement);
+    });
+
+    descriptionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        descriptionContainer.style.display = 'none';
+        taskElement.classList.remove('description-open');
+      }
+      // Handle keyboard shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 'b':
+            e.preventDefault();
+            document.execCommand('bold');
+            this.updateToolbarStates(taskElement);
+            break;
+          case 'i':
+            e.preventDefault();
+            document.execCommand('italic');
+            this.updateToolbarStates(taskElement);
+            break;
+          case 'u':
+            e.preventDefault();
+            document.execCommand('underline');
+            this.updateToolbarStates(taskElement);
+            break;
+        }
       }
     });
 
@@ -498,6 +660,87 @@ class NeptuneEditor {
 
   toDateKey(dateObj) {
     return `${dateObj.getFullYear()}-${dateObj.getMonth()}-${dateObj.getDate()}`;
+  }
+
+  updatePlaceholder(editor) {
+    const isEmpty = !editor.textContent.trim() && !editor.innerHTML.trim();
+    if (isEmpty) {
+      editor.classList.add('empty');
+    } else {
+      editor.classList.remove('empty');
+    }
+  }
+
+  updateToolbarStates(taskElement) {
+    const toolbarBtns = taskElement.querySelectorAll('.toolbar-btn');
+    toolbarBtns.forEach(btn => {
+      const command = btn.dataset.command;
+      let isActive = false;
+      
+      try {
+        switch(command) {
+          case 'bold':
+          case 'italic':
+          case 'underline':
+          case 'strikeThrough':
+            isActive = document.queryCommandState(command);
+            break;
+          case 'insertUnorderedList':
+          case 'insertOrderedList':
+            isActive = document.queryCommandState(command);
+            break;
+        }
+      } catch (e) {
+        // Some browsers might not support all commands
+        isActive = false;
+      }
+      
+      if (isActive) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  setupDescriptionClickOutside(descriptionContainer, taskElement) {
+    // Remove any existing click-outside handler
+    if (taskElement.clickOutsideHandler) {
+      document.removeEventListener('click', taskElement.clickOutsideHandler, true);
+    }
+    
+    // Create new click-outside handler
+    taskElement.clickOutsideHandler = (e) => {
+      // Check if click is outside the description container and not on the description button
+      const descriptionBtn = taskElement.querySelector('.description-btn');
+      const isClickInsideContainer = descriptionContainer.contains(e.target);
+      const isClickOnDescriptionBtn = descriptionBtn.contains(e.target);
+      const isClickOnToolbar = e.target.closest('.description-toolbar');
+      
+      if (!isClickInsideContainer && !isClickOnDescriptionBtn && !isClickOnToolbar) {
+        descriptionContainer.style.display = 'none';
+        taskElement.classList.remove('description-open');
+        document.removeEventListener('click', taskElement.clickOutsideHandler, true);
+        taskElement.clickOutsideHandler = null;
+        
+        // Save the description when closing
+        const descriptionInput = taskElement.querySelector('.task-description-input');
+        this.updateTaskDescription(task.id, descriptionInput.innerHTML);
+        
+        // Update the button indicator
+        const descriptionBtn = taskElement.querySelector('.description-btn');
+        if (descriptionInput.textContent.trim() || descriptionInput.innerHTML.trim()) {
+          descriptionBtn.classList.add('has-description');
+        } else {
+          descriptionBtn.classList.remove('has-description');
+        }
+      }
+    };
+    
+    // Add the handler with a small delay to prevent immediate closing
+    setTimeout(() => {
+      document.addEventListener('click', taskElement.clickOutsideHandler, true);
+    }, 100);
   }
 }
 
