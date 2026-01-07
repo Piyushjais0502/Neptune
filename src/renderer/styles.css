@@ -100,6 +100,16 @@ body {
   transform: rotate(2deg);
 }
 
+/* When the calendar is open on a task, bring that whole card above siblings */
+.task-item:has(.calendar-popover[style*="display: block"]) {
+  z-index: 50;
+}
+
+/* Fallback for browsers without :has() — can be toggled via JS if needed */
+.task-item.task-item--calendar-open {
+  z-index: 50;
+}
+
 .task-checkbox {
   width: 20px;
   height: 20px;
@@ -354,14 +364,14 @@ body {
 
 .date-picker {
   position: absolute;
-  z-index: 1000;
+  z-index: 5000;
 }
 
 .calendar-popover {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  z-index: 50;
+  z-index: 9999;
 }
 
 .cal {
@@ -372,6 +382,7 @@ body {
   padding: 12px;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
   color: #eaeaea;
+  z-index: 9999;
 }
 
 .cal-header {
@@ -658,4 +669,18 @@ body {
 
 .completed-task .task-text {
   flex: 1;
+}
+
+/* Ensure calendar popover stacks above neighboring task cards */
+.task-item {
+  position: relative;
+  isolation: isolate;
+}
+
+.calendar-popover {
+  z-index: 9999;
+}
+
+.cal {
+  z-index: 9999;
 }
