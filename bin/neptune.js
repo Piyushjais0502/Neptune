@@ -3,18 +3,33 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
+function usage() {
+  console.log('Usage: neptune <file.todo>');
+}
+
 const todoFile = process.argv[2];
 
 if (!todoFile) {
-  console.log('Usage: neptune <file.todo>');
+  usage();
   process.exit(1);
 }
 
-const electronPath = path.join(__dirname, '..', 'node_modules', '.bin', 'electron');
+let electronExecutable;
+try {
+  // Works for local + global installs
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  electronExecutable = require('electron');
+} catch (e) {
+  console.error('[neptune] Electron is not installed.');
+  console.error('[neptune] Install dependencies first (e.g. `npm i -g neptune-todo`).');
+  process.exit(1);
+}
+
 const mainScript = path.join(__dirname, '..', 'src', 'index.js');
 
-const child = spawn(electronPath, [mainScript, todoFile], {
-  stdio: 'inherit'
+const child = spawn(electronExecutable, [mainScript, todoFile], {
+  stdio: 'inherit',
+  windowsHide: false
 });
 
 child.on('close', (code) => {

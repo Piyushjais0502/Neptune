@@ -2,21 +2,22 @@
   "name": "neptune-todo",
   "version": "1.0.0",
   "description": "Visual notebook-style editor for .todo files",
-  "main": "src/index.js",
+  "main": "dist/main.js",
   "bin": {
     "neptune": "./bin/neptune.js"
   },
   "scripts": {
     "start": "electron src/index.js",
     "dev": "electron src/index.js test.todo",
-
     "watch:renderer": "webpack --config webpack.renderer.js --mode development --watch",
     "watch:main": "nodemon --watch src --ignore dist --ext js,json,html,css --exec \"electron src/index.js test.todo\"",
     "watch": "npm run watch:renderer & npm run watch:main",
-
     "build": "npm run build:renderer && npm run build:main",
     "build:renderer": "webpack --config webpack.renderer.js",
-    "build:main": "webpack --config webpack.main.js"
+    "build:main": "webpack --config webpack.main.js",
+
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
   },
   "keywords": [
     "todo",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "css-loader": "^6.8.1",
+    "electron-builder": "^24.13.3",
     "html-webpack-plugin": "^5.5.4",
     "style-loader": "^3.3.3",
     "webpack": "^5.89.0",
@@ -40,5 +42,37 @@
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "build": {
+    "appId": "com.neptune.todo",
+    "productName": "Neptune",
+    "files": [
+      "src/**/*",
+      "bin/**/*",
+      "dist/**/*",
+      "package.json",
+      "README.md"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dmg"],
+      "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    },
+    "win": {
+      "target": ["nsis"],
+      "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "fileAssociations": [
+      {
+        "ext": "todo",
+        "name": "Neptune Todo File",
+        "description": "Neptune .todo file",
+        "role": "Editor"
+      }
+    ]
   }
 }

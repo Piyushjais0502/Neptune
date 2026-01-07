@@ -1,15 +1,6 @@
 # Neptune Todo Editor
 
-A visual, notebook-style editor for .todo files that works like Jupyter Notebook but for task management.
-
-## Features
-
-- **Single File Focus**: Everything is stored in one .todo file - no auxiliary files or databases
-- **Notebook Interface**: Clean, minimal UI that resembles a notebook page
-- **Drag & Drop**: Drop any file to create a task from its filename
-- **Visual Priority**: Drag tasks up/down to change priority order
-- **Instant Actions**: Complete tasks with checkbox, skip with × button
-- **Auto-Save**: All changes are immediately saved to the .todo file
+A visual, notebook-style editor for `.todo` files.
 
 ## Installation
 
@@ -17,28 +8,49 @@ A visual, notebook-style editor for .todo files that works like Jupyter Notebook
 npm install -g neptune-todo
 ```
 
-## Usage
+## Usage (GUI)
+
+Open a `.todo` file in the Neptune GUI using the CLI:
 
 ```bash
-# Open an existing .todo file
 neptune mytasks.todo
-
-# Create and open a new .todo file
-neptune newtasks.todo
 ```
 
-## How It Works
+### Windows
 
-Neptune treats .todo files as the single source of truth. The UI is simply a visual interface for editing these files. When you:
+Use an absolute path if needed:
 
-- Add a task: It's immediately written to the .todo file
-- Reorder tasks: The new order is saved instantly
-- Complete/skip tasks: They're moved to hidden sections but preserved in the file
-- Close and reopen: The exact state is restored from the .todo file
+```bash
+neptune "C:\\Users\\you\\Documents\\mytasks.todo"
+```
+
+### macOS / Linux
+
+```bash
+neptune ~/Documents/mytasks.todo
+```
+
+## Notes about double-click to open
+
+- **VS Code** will open `.todo` files as JSON/text by default. Use the `neptune` command to open the GUI.
+- **Double-click to open** a `.todo` from Finder/Explorer requires the desktop app to be packaged/installed so the OS can associate the `.todo` extension with Neptune.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Build / Package
+
+```bash
+npm run dist
+```
 
 ## File Format
 
-The .todo file uses JSON internally but you only interact with the visual interface:
+The `.todo` file uses JSON internally but you interact with the visual interface:
 
 ```json
 {
@@ -52,11 +64,4 @@ The .todo file uses JSON internally but you only interact with the visual interf
     {"id": 125, "text": "Skipped task", "skipped": "2024-01-01T02:00:00Z"}
   ]
 }
-```
-
-## Development
-
-```bash
-npm install
-npm start
 ```

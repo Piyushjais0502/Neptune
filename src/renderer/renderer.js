@@ -154,6 +154,16 @@ class NeptuneEditor {
     }
   }
 
+  // Permanently delete from the .todo file (JSON)
+  deleteTask(taskId) {
+    const idx = this.data.tasks.findIndex(t => t.id === taskId);
+    if (idx !== -1) {
+      this.data.tasks.splice(idx, 1);
+      this.saveData();
+      this.render();
+    }
+  }
+
   isTaskOverdue(task) {
     if (!task.dueDate) return false;
     const today = new Date();
@@ -273,7 +283,7 @@ class NeptuneEditor {
           <i class="fas fa-calendar"></i>
         </button>
         <div class="calendar-popover" style="display:none;"></div>
-        <button class="task-delete-btn" title="Delete task">
+        <button class="task-delete-btn" title="Delete task permanently">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -308,9 +318,10 @@ class NeptuneEditor {
       this.toggleCalendar(calendarPopover, task.id, task.dueDate);
     });
 
+    // Delete (permanent)
     deleteBtn.addEventListener('click', () => {
       taskElement.classList.add('skipping');
-      setTimeout(() => this.skipTask(task.id), 300);
+      setTimeout(() => this.deleteTask(task.id), 300);
     });
 
     // Drag and drop

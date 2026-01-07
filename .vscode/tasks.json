@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Neptune: Build",
+      "type": "shell",
+      "command": "npm run build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Neptune: Package (mac dmg)",
+      "type": "shell",
+      "command": "npm run dist",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
