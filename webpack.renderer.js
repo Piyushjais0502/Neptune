@@ -6,9 +6,10 @@ module.exports = {
   target: 'electron-renderer',
   entry: './src/renderer/renderer.js',
   output: {
-    path: path.resolve(__dirname, 'dist/renderer'),
-    filename: 'renderer.js'
-  },
+  path: path.resolve(__dirname, 'dist/renderer'),
+  filename: 'renderer.js',
+  publicPath: './'
+},
   module: {
     rules: [
       {

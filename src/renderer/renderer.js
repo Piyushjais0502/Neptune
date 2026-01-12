@@ -1,3 +1,4 @@
+import './styles.css';
 const { ipcRenderer } = require('electron');
 
 class NeptuneEditor {

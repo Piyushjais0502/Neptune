@@ -25,7 +25,7 @@ try {
   process.exit(1);
 }
 
-const mainScript = path.join(__dirname, '..', 'src', 'index.js');
+const mainScript = path.join(__dirname, '..', 'dist', 'main.js');
 
 const child = spawn(electronExecutable, [mainScript, todoFile], {
   stdio: 'inherit',

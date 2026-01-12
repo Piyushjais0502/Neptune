@@ -1,6 +1,9 @@
 # Neptune Todo Editor
 
-A visual, notebook-style editor for `.todo` files.
+Neptune is a visual, notebook-style editor for `.todo` files.
+It treats a todo list not as a form or an app dashboard, but as a self-contained file that you interact with visually—similar in spirit to how Jupyter Notebook works.
+
+Neptune is designed to be minimal, file-centric, and gesture-driven, while still allowing optional typing when needed.
 
 ## Installation
 
@@ -34,34 +37,3 @@ neptune ~/Documents/mytasks.todo
 
 - **VS Code** will open `.todo` files as JSON/text by default. Use the `neptune` command to open the GUI.
 - **Double-click to open** a `.todo` from Finder/Explorer requires the desktop app to be packaged/installed so the OS can associate the `.todo` extension with Neptune.
-
-## Development
-
-```bash
-npm install
-npm run dev
-```
-
-## Build / Package
-
-```bash
-npm run dist
-```
-
-## File Format
-
-The `.todo` file uses JSON internally but you interact with the visual interface:
-
-```json
-{
-  "tasks": [
-    {"id": 123, "text": "Active task", "created": "2024-01-01T00:00:00Z"}
-  ],
-  "completed": [
-    {"id": 124, "text": "Done task", "completed": "2024-01-01T01:00:00Z"}
-  ],
-  "skipped": [
-    {"id": 125, "text": "Skipped task", "skipped": "2024-01-01T02:00:00Z"}
-  ]
-}
-```

@@ -1,10 +1,11 @@
 {
   "name": "neptune-todo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Visual notebook-style editor for .todo files",
   "main": "dist/main.js",
+  "private": false,
   "bin": {
-    "neptune": "./bin/neptune.js"
+    "neptune": "bin/neptune.js"
   },
   "scripts": {
     "start": "electron src/index.js",
@@ -15,7 +16,6 @@
     "build": "npm run build:renderer && npm run build:main",
     "build:renderer": "webpack --config webpack.renderer.js",
     "build:main": "webpack --config webpack.main.js",
-
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder"
   },
@@ -55,11 +55,15 @@
     ],
     "mac": {
       "category": "public.app-category.productivity",
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
     },
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
     },
     "nsis": {
