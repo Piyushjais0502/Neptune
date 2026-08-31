@@ -1,7 +1,7 @@
 # Neptune Todo Editor
 
 Neptune is a visual, notebook-style editor for `.todo` files.
-It treats a todo list not as a form or an app dashboard, but as a self-contained file that you interact with visually—similar in spirit to how Jupyter Notebook works.
+It treats a todo list not as a form or an app dashboard, but as a self-contained file that you interact with visually-similar in spirit to how Jupyter Notebook works.
 
 Neptune is designed to be minimal, file-centric, and gesture-driven, while still allowing optional typing when needed.
 
